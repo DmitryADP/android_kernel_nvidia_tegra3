@@ -6586,8 +6586,7 @@ static struct tegra30_emc_pdata *kai_get_emc_platdata(int hw_ramcode) {
 		return &qc750_emc_chip_nanya;
     default:
 		printk("Hardware ramcode is %d; default RAM for Nvidia Kai\n", hw_ramcode);
-        return &qc750_emc_chip_micron
-		/*return &kai_emc_chip_elpida;*/
+		return &kai_emc_chip_elpida;
 	}
 }
 

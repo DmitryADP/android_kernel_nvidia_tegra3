@@ -293,28 +293,17 @@ obj-${CONFIG_MACH_KAI}                  += board-kai-sdhci.o
 obj-${CONFIG_MACH_KAI}                  += board-kai-sensors.o
 obj-${CONFIG_MACH_KAI}                  += board-touch-raydium_spi.o
 endif
-ifeq ($(CONFIG_MACH_QC750),y)
-obj-${CONFIG_MACH_KAI}                  += board-qc750.o
-obj-${CONFIG_MACH_KAI}                  += board-qc750-kbc.o
-obj-${CONFIG_MACH_KAI}                  += board-qc750-memory.o
-obj-${CONFIG_MACH_KAI}                  += board-qc750-misc.o
-obj-${CONFIG_MACH_KAI}                  += board-qc750-panel.o
-obj-${CONFIG_MACH_KAI}                  += board-qc750-pinmux.o
-obj-${CONFIG_MACH_KAI}                  += board-qc750-power.o
-obj-${CONFIG_MACH_KAI}                  += board-qc750-sdhci.o
-obj-${CONFIG_MACH_KAI}                  += board-qc750-sensors.o
-else
-obj-${CONFIG_MACH_KAI}                  += board-kai.o
-obj-${CONFIG_MACH_KAI}                  += board-kai-kbc.o
-obj-${CONFIG_MACH_KAI}                  += board-kai-memory.o
-obj-${CONFIG_MACH_KAI}                  += board-kai-panel.o
-obj-${CONFIG_MACH_KAI}                  += board-kai-pinmux.o
-obj-${CONFIG_MACH_KAI}                  += board-kai-power.o
-obj-${CONFIG_MACH_KAI}                  += board-kai-sdhci.o
-obj-${CONFIG_MACH_KAI}                  += board-kai-sensors.o
-obj-${CONFIG_MACH_KAI}                  += board-touch-raydium_spi.o
-endif
 obj-${CONFIG_MACH_KAI}                  += eeprom-wifi-mac.o
+
+obj-${CONFIG_MACH_QC750}                  += board-qc750.o
+obj-${CONFIG_MACH_QC750}                  += board-qc750-kbc.o
+obj-${CONFIG_MACH_QC750}                  += board-qc750-memory.o
+obj-${CONFIG_MACH_QC750}                  += board-qc750-misc.o
+obj-${CONFIG_MACH_QC750}                  += board-qc750-panel.o
+obj-${CONFIG_MACH_QC750}                  += board-qc750-pinmux.o
+obj-${CONFIG_MACH_QC750}                  += board-qc750-power.o
+obj-${CONFIG_MACH_QC750}                  += board-qc750-sdhci.o
+obj-${CONFIG_MACH_QC750}                  += board-qc750-sensors.o
 
 obj-${CONFIG_MACH_DALMORE}              += board-dalmore.o
 obj-${CONFIG_MACH_DALMORE}              += board-dalmore-memory.o
