@@ -122,7 +122,6 @@ int __init touch_init_synaptics_kai(void);
 #define MPU_TYPE_MPU3050	1
 #define MPU_TYPE_MPU6050	2
 #define MPU_GYRO_TYPE		MPU_TYPE_MPU3050
-#define MPU_GYRO_NAME		"mpu6050"
 #define MPU_GYRO_IRQ_GPIO	TEGRA_GPIO_PZ4
 #define MPU_GYRO_ADDR		0x68
 #define MPU_GYRO_BUS_NUM	0

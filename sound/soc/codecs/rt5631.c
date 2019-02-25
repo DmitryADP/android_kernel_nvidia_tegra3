@@ -435,44 +435,26 @@ static int rt5631_set_gain(struct snd_kcontrol *kcontrol,
 		printk("%s(): set ALC AMIC parameter\n", __func__);
 		DMIC_flag = false;
 		if(!spk_out_flag){
-			if(tegra3_get_project_id() == TEGRA3_PROJECT_TF700T) {
-				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0207);
-				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x000a);
-				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0xe090);
-			} else {
 				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0207);
 				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x0004);
 				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0xe084);
-			}
 		}
 		#endif
 		/* set heaset mic gain */
 		printk("%s():set headset gain\n", __func__);
-		if(tegra3_get_project_id() == TEGRA3_PROJECT_TF700T)
-			snd_soc_update_bits(codec, RT5631_ADC_CTRL_1, 0x001f, 0x0005);
-		else
 			snd_soc_update_bits(codec, RT5631_ADC_CTRL_1, 0x001f, 0x0000);
 	} else {
 		#if ENABLE_ALC
 		printk("%s(): set ALC DMIC parameter\n", __func__);
 		DMIC_flag = true;
 		if(!spk_out_flag){
-			if(tegra3_get_project_id() == TEGRA3_PROJECT_TF700T) {
-				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0207);
-				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x000e);
-				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0xe099);
-			} else {
 				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0207);
 				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x0006);
 				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0xe09a);
-			}
 		}
 		#endif
 		/* set dmic gain */
 		printk("%s(): use codec for capture gain\n", __func__);
-		if(tegra3_get_project_id() == TEGRA3_PROJECT_TF700T)
-			snd_soc_update_bits(codec, RT5631_ADC_CTRL_1, 0x00ff, 0x0013);
-		else
 			snd_soc_update_bits(codec, RT5631_ADC_CTRL_1, 0x001f, 0x000f);    //boost 22.5dB
 	}
 	mutex_unlock(&codec->mutex);
@@ -1048,10 +1030,8 @@ static int spk_event(struct snd_soc_dapm_widget *w,
 	struct snd_soc_codec *codec = w->codec;
 	static int spkl_out_enable, spkr_out_enable;
 	unsigned int rt531_dac_pwr = 0;
-	unsigned int tf700t_pcb_id = 0;
 	unsigned int reg_val;
 
-	tf700t_pcb_id = tegra3_query_pcba_revision_pcbid();
 	rt531_dac_pwr = (snd_soc_read(codec, RT5631_PWR_MANAG_ADD1) & 0x0300) >> 8;
 
 	switch (event) {
@@ -1060,61 +1040,13 @@ static int spk_event(struct snd_soc_dapm_widget *w,
 			printk("spk_event --ALC_SND_SOC_DAPM_POST_PMU\n");
 			spk_out_flag = true;
 			/* Enable ALC */
-			switch (tegra3_get_project_id()) {
-			case TEGRA3_PROJECT_TF201:
-				snd_soc_write(codec,
-					RT5631_GEN_PUR_CTRL_REG, 0x6e00);
-				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0B00);
-				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x0000);
-				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0x6410);
-				break;
-			case TEGRA3_PROJECT_TF300TG:
-			case TEGRA3_PROJECT_TF300TL:
-				snd_soc_write(codec,
-					RT5631_GEN_PUR_CTRL_REG, 0x6e00);
-				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0B00);
-				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x0000);
-				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0x6510);
-				break;
-			case TEGRA3_PROJECT_TF700T:
-				snd_soc_write(codec,
-					RT5631_GEN_PUR_CTRL_REG, 0x7e00);
-				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0307);
-				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x0000);
-				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0x6510);
-				break;
-			}
 		#endif
 		#if ENABLE_EQ
 			if(rt531_dac_pwr == 0x3) {
 				  snd_soc_update_bits(codec,RT5631_PWR_MANAG_ADD1, 0x8000, 0x8000); //enable IIS interface power
-				  if(tegra3_get_project_id() == TEGRA3_PROJECT_TF201) {
-						rt5631_update_eqmode(codec, TF201);
-				  } else if(tegra3_get_project_id() == TEGRA3_PROJECT_TF300TG) {
-						rt5631_update_eqmode(codec, TF300TG);
-				  } else if(tegra3_get_project_id() == TEGRA3_PROJECT_TF700T) {
-						rt5631_update_eqmode(codec, TF700T);
-				  } else if(tegra3_get_project_id() == TEGRA3_PROJECT_TF300TL) {
-						rt5631_update_eqmode(codec, TF300TL);
-				  } else {
-						rt5631_update_eqmode(codec, TF201);
-				  }//enable EQ after power on DAC power
 			}
 		#endif
 		if (!spkl_out_enable && !strcmp(w->name, "SPKL Amp")) {
-
-			if(tegra3_get_project_id() == TEGRA3_PROJECT_TF201) {
-				snd_soc_update_bits(codec, RT5631_SPK_OUT_VOL, RT5631_L_VOL, 0x0700);
-			} else if(tegra3_get_project_id() == TEGRA3_PROJECT_TF300TG) {
-				snd_soc_update_bits(codec, RT5631_SPK_OUT_VOL, RT5631_L_VOL, 0x0700);
-			} else if(tegra3_get_project_id() == TEGRA3_PROJECT_TF700T) {
-				snd_soc_update_bits(codec, RT5631_SPK_OUT_VOL, RT5631_L_VOL, 0x0600);
-			}
-			if((tf700t_pcb_id == TF700T_PCB_ER1) &&
-			   (tegra3_get_project_id() == TEGRA3_PROJECT_TF700T)){
-			   snd_soc_update_bits(codec, RT5631_SPK_OUT_VOL, RT5631_L_VOL, 0x0d00);
-			   printk("%s: %s\n", __func__, "TF700T ER1 spk L ch vol = -7.5dB");
-			}
 
 			snd_soc_update_bits(codec, RT5631_PWR_MANAG_ADD4,
 					RT5631_PWR_SPK_L_VOL, RT5631_PWR_SPK_L_VOL);
@@ -1125,19 +1057,6 @@ static int spk_event(struct snd_soc_dapm_widget *w,
 			spkl_out_enable = 1;
 		}
 		if (!spkr_out_enable && !strcmp(w->name, "SPKR Amp")) {
-
-			if(tegra3_get_project_id() == TEGRA3_PROJECT_TF201) {
-				snd_soc_update_bits(codec, RT5631_SPK_OUT_VOL, RT5631_R_VOL, 0x0007);
-			} else if(tegra3_get_project_id() == TEGRA3_PROJECT_TF300TG) {
-				snd_soc_update_bits(codec, RT5631_SPK_OUT_VOL, RT5631_R_VOL, 0x0007);
-			} else if(tegra3_get_project_id() == TEGRA3_PROJECT_TF700T) {
-				snd_soc_update_bits(codec, RT5631_SPK_OUT_VOL, RT5631_R_VOL, 0x0006);
-			}
-			if((tf700t_pcb_id == TF700T_PCB_ER1) &&
-				(tegra3_get_project_id() == TEGRA3_PROJECT_TF700T)) {
-                snd_soc_update_bits(codec, RT5631_SPK_OUT_VOL, RT5631_R_VOL, 0x000d);
-                printk("%s: %s\n", __func__, "TF700T ER1 spk R ch vol = -7.5dB");
-			}
 
 			snd_soc_update_bits(codec, RT5631_PWR_MANAG_ADD4,
 					RT5631_PWR_SPK_R_VOL, RT5631_PWR_SPK_R_VOL);
@@ -1177,25 +1096,14 @@ static int spk_event(struct snd_soc_dapm_widget *w,
 			//Disable ALC
 			snd_soc_update_bits(codec, RT5631_ALC_CTRL_3, 0xf000, 0x2000);
 		} else if(!spk_out_flag && DMIC_flag ) {
-			if(tegra3_get_project_id() == TEGRA3_PROJECT_TF700T) {
-				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0207);
-				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x000e);
-				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0xe099);
-			} else {
 				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0207);
 				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x0006);
 				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0xe09a);
-			}
+        
 		} else if(!spk_out_flag && !DMIC_flag ) {
-			if(tegra3_get_project_id() == TEGRA3_PROJECT_TF700T) {
-				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0207);
-				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x000a);
-				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0xe090);
-			} else {
 				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0207);
 				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x0004);
 				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0xe084);
-			}
 		}
 		#endif
 		#if ENABLE_EQ
@@ -1208,14 +1116,6 @@ static int spk_event(struct snd_soc_dapm_widget *w,
 
 	default:
 		return 0;
-	}
-
-	if(tegra3_get_project_id() == TEGRA3_PROJECT_TF700T ||
-	   tegra3_get_project_id() == TEGRA3_PROJECT_TF300TG ||
-	   tegra3_get_project_id() == TEGRA3_PROJECT_TF300TL) {
-		rt5631_write_index(codec, 0x48, 0xF73C);
-		reg_val = rt5631_read_index(codec, 0x48);
-		printk("%s -codec index 0x48=0x%04X\n", __FUNCTION__, reg_val);
 	}
 
 	return 0;
@@ -1291,26 +1191,13 @@ static int adc_event(struct snd_soc_dapm_widget *w,
 		printk("adc_event --ALC_SND_SOC_DAPM_POST_PMU\n");
 		ADC_flag = true;
 		if(!spk_out_flag && DMIC_flag ){
-			if(tegra3_get_project_id() == TEGRA3_PROJECT_TF700T){
-				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0207);
-				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x000e);
-				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0xe099);
-			}else{
 				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0207);
 				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x0006);
 				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0xe09a);
-			}
 		}else if(!spk_out_flag && !DMIC_flag ){
-			if(tegra3_get_project_id() == TEGRA3_PROJECT_TF700T){
-				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0207);
-				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x000a);
-				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0xe090);
-				snd_soc_update_bits(codec, RT5631_ADC_CTRL_1, 0x001f, 0x0005);
-			}else{
 				snd_soc_write(codec, RT5631_ALC_CTRL_1, 0x0207);
 				snd_soc_write(codec, RT5631_ALC_CTRL_2, 0x0004);
 				snd_soc_write(codec, RT5631_ALC_CTRL_3, 0xe084);
-			}
 		}
 		msleep(1);
 		snd_soc_update_bits(codec, RT5631_ADC_CTRL_1, 0x8080, 0x0000);
@@ -2337,20 +2224,6 @@ static struct i2c_driver rt5631_i2c_driver = {
 static int codec_3v3_power_switch_init(void)
 {
 	int ret = 0;
-
-	if(tegra3_get_project_id() == TEGRA3_PROJECT_TF700T) {
-		ret = gpio_request(TEGRA_GPIO_PP0, "rt5631_3v3_power_control");
-		if(!ret) {
-			ret = gpio_direction_output(TEGRA_GPIO_PP0, 1);
-			if(ret < 0) {
-				gpio_free(TEGRA_GPIO_PP0);
-				pr_err("%s: error in setting rt5631_3v3_power_control as output\n", __func__);
-			}
-		} else {
-			pr_err("%s: error in gpio request for rt5631_3v3_power_control\n", __func__);
-			return ret;
-		}
-	}
 	return ret;
 }
 

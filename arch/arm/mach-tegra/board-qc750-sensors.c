@@ -34,7 +34,7 @@
 #include <mach/gpio-tegra.h>
 
 #include "board.h"
-#include "board-qc750.h"
+#include "board-kai.h"
 #include "cpu-tegra.h"
 
 static struct regulator *kai_1v8_cam3;

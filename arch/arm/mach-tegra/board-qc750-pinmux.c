@@ -516,7 +516,6 @@ int __init kai_pinmux_init(void)
 	tegra_get_board_info(&board_info);
 	BUG_ON(board_info.board_id != BOARD_E1565);
     tegra30_default_pinmux();
-    
 	kai_gpio_init_configure();
 
 	tegra_pinmux_config_table(kai_pinmux_common, ARRAY_SIZE(kai_pinmux_common));

@@ -277,12 +277,8 @@ static struct platform_driver tegra_rt5631_driver = {
 
 static int __init tegra_rt5631_modinit(void)
 {
-	if(tegra3_get_project_id() != TEGRA3_PROJECT_TF300T) {
-		pr_info("tegra_rt5631: codec is supported\n");
-		return platform_driver_register(&tegra_rt5631_driver);
-	} else {
 		return 0;
-	}
+
 }
 module_init(tegra_rt5631_modinit);
 

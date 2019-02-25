@@ -28,6 +28,7 @@
 #include <linux/io.h>
 #include <linux/regulator/fixed.h>
 #include <linux/power/gpio-charger.h>
+#include <mach/gpio-tegra.h>
 
 #include <asm/mach-types.h>
 
@@ -35,7 +36,6 @@
 #include <mach/irqs.h>
 #include <mach/pinmux.h>
 #include <mach/edp.h>
-#include <mach/gpio-tegra.h>
 #include <linux/notifier.h>
 #include "gpio-names.h"
 #include "board.h"
@@ -105,7 +105,7 @@ static struct regulator_consumer_supply max77663_ldo2_supply[] = {
 };
 
 static struct regulator_consumer_supply max77663_ldo3_supply[] = {
-	
+	REGULATOR_SUPPLY("vmmc", NULL),
 };
 
 static struct regulator_consumer_supply max77663_ldo4_supply[] = {
@@ -228,7 +228,6 @@ MAX77663_PDATA_INIT(LDO8, ldo8, 800000, 3950000, max77663_rails(sd3), 0, 1, 0,
 #define MAX77663_REG(_id, _data) &max77663_regulator_pdata_##_data
 
 static struct max77663_regulator_platform_data  *max77663_reg_pdata[] = {
-
 	MAX77663_REG(SD0, sd0),
 	MAX77663_REG(SD1, sd1),
 	MAX77663_REG(SD2, sd2),
@@ -304,6 +303,7 @@ static struct max77663_gpio_config max77663_gpio_cfgs[] = {
 static struct max77663_platform_data max7763_pdata = {
 	.irq_base	= MAX77663_IRQ_BASE,
 	.gpio_base	= MAX77663_GPIO_BASE,
+
 	.num_gpio_cfgs	= ARRAY_SIZE(max77663_gpio_cfgs),
 	.gpio_cfgs	= max77663_gpio_cfgs,
 

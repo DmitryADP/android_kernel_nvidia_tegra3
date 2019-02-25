@@ -32,6 +32,7 @@
 #include <linux/input.h>
 #include <linux/platform_data/tegra_usb.h>
 #include <linux/spi/spi.h>
+#include <linux/spi/rm31080a_ts.h>
 #include <linux/tegra_uart.h>
 #include <linux/memblock.h>
 #include <linux/spi-tegra.h>
@@ -43,10 +44,12 @@
 #include <linux/max17048_battery.h>
 #include <linux/leds.h>
 #include <linux/i2c/at24.h>
-#include <linux/rfkill-gpio.h>
 #include <linux/of_platform.h>
 
 #include <asm/hardware/gic.h>
+
+#include <linux/rfkill-gpio.h>
+
 #include <mach/clk.h>
 #include <mach/iomap.h>
 #include <mach/irqs.h>
@@ -89,6 +92,7 @@
 #if defined(CONFIG_SND_SOC_TEGRA_RT5639) && defined(CONFIG_MACH_HAS_SND_SOC_TEGRA_RT5639)
 	#include <mach/tegra_asoc_pdata.h>
 #endif
+
 
 /* wl128x BT, FM, GPS connectivity chip */
 struct ti_st_plat_data ti_wilink_pdata = {
@@ -139,10 +143,13 @@ static struct platform_device ti_bluesleep_device = {
 
 static noinline void __init ti_tegra_setup_tibluesleep(void)
 {
+    ti_bluesleep_device.resource[1].start =
+		ti_bluesleep_device.resource[1].end =
+			gpio_to_irq(TEGRA_GPIO_PS6);
 	platform_device_register(&ti_bluesleep_device);
 }
 
-/*static struct resource cardhu_bluedroid_pm_resources[] = {
+static struct resource cardhu_bluedroid_pm_resources[] = {
 	[0] = {
 		.name   = "shutdown_gpio",
 		.start  = TEGRA_GPIO_PD0,
@@ -182,7 +189,7 @@ static noinline void __init cardhu_setup_bluedroid_pm(void)
 	platform_device_register(&cardhu_bluedroid_pm_device);
 	return;
 }
-*/
+
 static __initdata struct tegra_clk_init_table kai_clk_init_table[] = {
 	/* name		parent		rate		enabled */
 	{ "pll_m",	NULL,		0,		false},
@@ -219,7 +226,7 @@ static struct i2c_board_info __initdata kai_nfc_board_info[] = {
 	{
 		I2C_BOARD_INFO("pn544", 0x28),
 		.platform_data = &nfc_pdata,
-		.irq = TEGRA_GPIO_TO_IRQ(TEGRA_GPIO_PX0),
+		.irq = gpio_to_irq(TEGRA_GPIO_PX0),
 	},
 };
 */
@@ -356,18 +363,22 @@ static void kai_i2c_init(void)
 
 	//i2c_register_board_info(4, kai_i2c4_smb349_board_info,
 	//	ARRAY_SIZE(kai_i2c4_smb349_board_info));
-    
+
 #if defined(CONFIG_SND_SOC_TEGRA_SOC_TLV320AIC325X) && defined(CONFIG_MACH_HAS_SND_SOC_TEGRA_TLV320AIC325X)
-    tlv320aic325x_board_info.irq = gpio_to_irq(TEGRA_GPIO_CDC_IRQ);
+	if(machine_is_nabi2_xd() || machine_is_nabi_2s() ||machine_is_qc750() ||  machine_is_n710() || machine_is_itq700() || machine_is_itq701()  || machine_is_mm3201()
+		|| machine_is_n1010() || machine_is_n750() || machine_is_birch() || machine_is_wikipad() ||machine_is_ns_14t004()){
 		i2c_register_board_info(4,  &tlv320aic325x_board_info, 1);
+        tlv320aic325x_board_info.irq = gpio_to_irq(TEGRA_GPIO_HP_DET);
+		}
 #endif
 #if defined(CONFIG_SND_SOC_TEGRA_RT5631) && defined(CONFIG_MACH_HAS_SND_SOC_TEGRA_RT5631)
-rt5631_board_info.irq = gpio_to_irq(TEGRA_GPIO_CDC_IRQ);
+	if( machine_is_nabi2_3d() || machine_is_nabi2())
 		i2c_register_board_info(4, &rt5631_board_info, 1);
+    	rt5631_board_info.irq = gpio_to_irq(TEGRA_GPIO_CDC_IRQ);
 #endif
 #if defined(CONFIG_SND_SOC_TEGRA_RT5639) && defined(CONFIG_MACH_HAS_SND_SOC_TEGRA_RT5639)
-	rt5639_board_info.irq = gpio_to_irq(TEGRA_GPIO_CDC_IRQ);	
-    i2c_register_board_info(4, &rt5639_board_info, 1);
+		i2c_register_board_info(4, &rt5639_board_info, 1);
+        rt5639_board_info.irq = gpio_to_irq(TEGRA_GPIO_CDC_IRQ);
 #endif
 	//i2c_register_board_info(4, &kai_eeprom_mac_add, 1);
 
@@ -377,10 +388,13 @@ rt5631_board_info.irq = gpio_to_irq(TEGRA_GPIO_CDC_IRQ);
 	//i2c_register_board_info(0, kai_nfc_board_info, 1);
 	
 	//register BCM20793B3
+	if(machine_is_nabi2_xd()||machine_is_nabi_2s()){
 		printk("i2c init bcm20793B3 device \n");
-        i2c_devs14[0].irq = gpio_to_irq(TEGRA_GPIO_PV1);
 		i2c_register_board_info(0, i2c_devs14, ARRAY_SIZE(i2c_devs14));
+        i2c_devs14[0].irq = gpio_to_irq(TEGRA_GPIO_PV1);
+	}
 }
+
 
 static struct platform_device *kai_uart_devices[] __initdata = {
 	&tegra_uarta_device,
@@ -456,7 +470,9 @@ static struct platform_device tegra_camera = {
 static struct platform_device *kai_spi_devices[] __initdata = {
 	&tegra_spi_device1,
 };
-
+static struct platform_device *nabi2_xd_spi_devices[] __initdata = {
+	&tegra_spi_device2,
+};
 static struct spi_clk_parent spi_parent_clk[] = {
 	[0] = {.name = "pll_p"},
 #ifndef CONFIG_TEGRA_PLLM_RESTRICTED
@@ -493,7 +509,11 @@ static void __init kai_spi_init(void)
 	kai_spi1_pdata.parent_clk_list = spi_parent_clk;
 	kai_spi1_pdata.parent_clk_count = ARRAY_SIZE(spi_parent_clk);
 	tegra_spi_device1.dev.platform_data = &kai_spi1_pdata;
-	platform_add_devices(kai_spi_devices,
+	if(machine_is_nabi2_xd())
+		platform_add_devices(nabi2_xd_spi_devices,
+					ARRAY_SIZE(nabi2_xd_spi_devices));
+	else
+		platform_add_devices(kai_spi_devices,
 					ARRAY_SIZE(kai_spi_devices));
 
 }
@@ -636,7 +656,9 @@ static struct platform_device *kai_devices[] __initdata = {
 	&tegra_pmu_device,
 	&tegra_rtc_device,
 	&tegra_udc_device,
+
 	&tegra_wdt0_device,
+
 #if defined(CONFIG_TEGRA_AVP)
 	&tegra_avp_device,
 #endif
@@ -699,7 +721,6 @@ static struct tegra_usb_platform_data tegra_ehci1_utmi_pdata = {
 	.op_mode = TEGRA_USB_OPMODE_HOST,
 	.u_data.host = {
 		.vbus_gpio =-1,
-	
 		.hot_plug = true,
 		.remote_wakeup_supported = true,
 		.power_off_on_suspend = true,
@@ -725,7 +746,6 @@ static struct tegra_usb_platform_data tegra_ehci2_utmi_pdata = {
 	.op_mode	= TEGRA_USB_OPMODE_HOST,
 	.u_data.host = {
 		.vbus_gpio = -1,
-
 		.hot_plug = false,
 		.remote_wakeup_supported = true,
 		.power_off_on_suspend = true,
@@ -751,6 +771,7 @@ static struct tegra_usb_platform_data tegra_ehci3_utmi_pdata = {
     .op_mode	= TEGRA_USB_OPMODE_HOST,
     .u_data.host = {
         .vbus_gpio = -1,
+        
         .hot_plug = true,
         .remote_wakeup_supported = true,
         .power_off_on_suspend = true,
@@ -805,14 +826,24 @@ static void kai_audio_init(void)
 	tegra_get_board_info(&board_info);
 
 #if defined(CONFIG_SND_SOC_TEGRA_SOC_TLV320AIC325X) && defined(CONFIG_MACH_HAS_SND_SOC_TEGRA_TLV320AIC325X)	
+	if(machine_is_nabi2_xd() || machine_is_nabi_2s() ||machine_is_qc750() ||  machine_is_n710() || machine_is_itq700() || machine_is_itq701() ||machine_is_mm3201()
+		|| machine_is_n1010() || machine_is_n750() || machine_is_birch() || machine_is_wikipad() || machine_is_ns_14t004()) {
 		kai_audio_ti_pdata.codec_name = "tlv320aic325x.4-0018";
 		kai_audio_ti_pdata.codec_dai_name = "TLV320AIC325x";	
 		platform_device_register(&kai_audio_ti_device);
+		 if(machine_is_birch()){
+                   device_init_wakeup(&kai_audio_ti_device.dev, 1);
+                   device_set_wakeup_enable(&kai_audio_ti_device.dev, 1);
+              }
+
+	}
 #endif
 #if defined(CONFIG_SND_SOC_TEGRA_RT5631) && defined(CONFIG_MACH_HAS_SND_SOC_TEGRA_RT5631)
+	if(machine_is_nabi2_3d() || machine_is_nabi2()){
 		kai_audio_pdata.codec_name = "rt5631.4-001a";
 		kai_audio_pdata.codec_dai_name = "RT5631-HIFI";
 		platform_device_register(&kai_audio_device);
+		}
 #endif
 #if defined(CONFIG_SND_SOC_TEGRA_RT5639) && defined(CONFIG_MACH_HAS_SND_SOC_TEGRA_RT5639)
 		kai_audio_pdata.codec_name = "rt5639.4-001c";
@@ -838,8 +869,9 @@ static int __init kai_touch_init_Focaltech(void)
 {
 
 	//tegra_gpio_enable(TEGRA_GPIO_PD2);//wantianpei add  
-	ventana_i2c_bus1_FT5X0X_info[0].irq = gpio_to_irq(TEGRA_GPIO_PJ0);
+
 	i2c_register_board_info(1, ventana_i2c_bus1_FT5X0X_info, 1);
+    ventana_i2c_bus1_FT5X0X_info[0].irq = gpio_to_irq(TEGRA_GPIO_PJ0);
 
 	//gpio_request(TEGRA_GPIO_PD2, "tp_enable");
 	//gpio_direction_output(TEGRA_GPIO_PD2, 1);
@@ -893,9 +925,6 @@ static const struct i2c_board_info ventana_i2c_bus1_NT11003_info[] = {
 static int __init NT11003_touch_init(void)
 {
 	printk("=====touch====\n");
-    
-    ventana_i2c_bus1_NT11003_info[0].irq = gpio_to_irq(TEGRA_GPIO_PJ0);
-         
 	gpio_request(TEGRA_GPIO_PK7, "tp_rst");
 	gpio_direction_output(TEGRA_GPIO_PK7, 1);
 	
@@ -924,6 +953,7 @@ static int __init NT11003_touch_init(void)
 	gpio_direction_input(TEGRA_GPIO_TOUCH_DETECT_2);
 	
 	i2c_register_board_info(1, ventana_i2c_bus1_NT11003_info, 1);
+    ventana_i2c_bus1_NT11003_info[0].irq = gpio_to_irq(TEGRA_GPIO_PJ0),
 
 	return 0;
 }
@@ -935,7 +965,7 @@ static int __init NT11003_touch_init(void)
 static const struct i2c_board_info ventana_i2c_bus1_Goodix_GT9XX[] = {
 	{
 	 I2C_BOARD_INFO("Goodix-TS", (0x5d)),           //0x70),     
-	// .irq = TEGRA_GPIO_TO_IRQ(TEGRA_GPIO_PJ0),
+	// .irq = gpio_to_irq(TEGRA_GPIO_PJ0),
 	// .platform_data = &nt1103_ts_data,
 	},
 };
@@ -990,10 +1020,7 @@ static void __init tegra_usb_vbus(void)
 
 }
 
-
-
-
-/*static int focal_or_novatek_tp_detect(void)
+static int focal_or_novatek_tp_detect(void)
 {
 	int  touch_detect,touch_detect1,touch_detect2,touch_detect3;
 	int status;
@@ -1018,16 +1045,30 @@ static void __init tegra_usb_vbus(void)
 	
 	return status;
 }
-*/
+
 static void __init tegra_kai_init(void)
 {
 	tegra_clk_init_from_table(kai_clk_init_table);
 	tegra_enable_pinmux();
 	tegra_smmu_init();
-    tegra_soc_device_init("QC750");	
+	if(machine_is_n710()){
+		tegra_soc_device_init("N710");
+	} else if(machine_is_qc750()){
+		tegra_soc_device_init("QC750");
+	} else if(machine_is_itq700()){
+		tegra_soc_device_init("itq700");
+}
+	else if(machine_is_mm3201()){
+		tegra_soc_device_init("mm3201");
+	}
+	else if(machine_is_itq701())
+	{	
+		tegra_soc_device_init("itq701");
+	}
+	
 	kai_pinmux_init();
 	kai_i2c_init();
-    kai_spi_init();
+       kai_spi_init();
 	tegra_usb_vbus();
 	kai_usb_init();
 #ifdef CONFIG_TEGRA_EDP_LIMITS
@@ -1041,7 +1082,31 @@ static void __init tegra_kai_init(void)
 	kai_sdhci_init();
 	kai_regulator_init();
 	kai_suspend_init();
-	
+	if(machine_is_birch())//support novatek and focal
+	{
+		switch(focal_or_novatek_tp_detect())
+		{
+			case 0x0c://edt focal ic
+			{
+				#ifdef CONFIG_TOUCHSCREEN_FT5X0X
+				kai_touch_init_Focaltech();
+				#endif
+			}
+			break;
+			case 0x0f://rtr novatek ic
+			case 0x08://edt novatek ic
+			{
+				#ifdef CONFIG_TOUCHSCREEN_NT11003_2	
+				NT11003_touch_init();
+				#endif
+			}
+			break;
+			default:
+			break;
+		}
+	}
+	else
+	{
 #ifdef CONFIG_TOUCHSCREEN_FT5X0X
 	kai_touch_init_Focaltech();
 #endif
@@ -1051,10 +1116,17 @@ static void __init tegra_kai_init(void)
 #ifdef CONFIG_TOUCHSCREEN_GOODIX_GT9XX	
 			Goodix_GT9XX_touch_init();
 #endif
+	}
 	kai_keys_init();
 	kai_panel_init();
-	ti_bt_st();
-    ti_tegra_setup_tibluesleep();
+	if(machine_is_nabi2_xd() || machine_is_nabi_2s() || machine_is_nabi2_3d() ||machine_is_nabi2() || machine_is_wikipad()) {
+//		bcm_bt_rfkill_init();
+//		bcm_setup_bluesleep();
+		cardhu_setup_bluedroid_pm();
+	} else {
+		ti_bt_st();
+		ti_tegra_setup_tibluesleep();
+	}
 	//kai_nfc_init();
 	kai_sensors_init();
 	
@@ -1067,7 +1139,6 @@ static void __init tegra_kai_init(void)
 #endif
 	tegra_serial_debug_init(TEGRA_UARTD_BASE, INT_WDT_CPU, NULL, -1, -1);
     tegra_register_fuse();
-	
 }
 
 static void __init kai_ramconsole_reserve(unsigned long size)
@@ -1097,26 +1168,200 @@ static void __init tegra_kai_reserve(void)
 }
 
 static const char * const kai_dt_board_compat[] = {
-	"nvidia,kai,qc750",
+	"nvidia,kai,QC750",
 	NULL
 };
 
-MACHINE_START(QC750, "QC750")
-	.atag_offset = 0x100,
-    .soc		= &tegra_soc_desc,
+MACHINE_START(KAI, "kai")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
 	.map_io		= tegra_map_common_io,
 	.reserve	= tegra_kai_reserve,
 	.init_early	= tegra30_init_early,
 	.init_irq	= tegra_init_irq,
-    .handle_irq	= gic_handle_irq,
+	.handle_irq	= gic_handle_irq,
 	.timer		= &tegra_timer,
 	.init_machine	= tegra_kai_dt_init,
-    .restart	= tegra_assert_system_reset,
+	.restart	= tegra_assert_system_reset,
 	.dt_compat	= kai_dt_board_compat,
 MACHINE_END
 
+MACHINE_START(NABI2, "MT799")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
+	.map_io		= tegra_map_common_io,
+	.reserve	= tegra_kai_reserve,
+	.init_early	= tegra30_init_early,
+	.init_irq	= tegra_init_irq,
+	.handle_irq	= gic_handle_irq,
+	.timer		= &tegra_timer,
+	.init_machine	= tegra_kai_dt_init,
+	.restart	= tegra_assert_system_reset,
+MACHINE_END
 
+MACHINE_START(NABI2_3D, "NABI2_3D")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
+	.map_io		= tegra_map_common_io,
+	.reserve	= tegra_kai_reserve,
+	.init_early	= tegra30_init_early,
+	.init_irq	= tegra_init_irq,
+	.handle_irq	= gic_handle_irq,
+	.timer		= &tegra_timer,
+	.init_machine	= tegra_kai_dt_init,
+	.restart	= tegra_assert_system_reset,
+MACHINE_END
 
+MACHINE_START(NABI2_XD, "NABI2_XD")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
+	.map_io		= tegra_map_common_io,
+	.reserve	= tegra_kai_reserve,
+	.init_early	= tegra30_init_early,
+	.init_irq	= tegra_init_irq,
+	.handle_irq	= gic_handle_irq,
+	.timer		= &tegra_timer,
+	.init_machine	= tegra_kai_dt_init,
+	.restart	= tegra_assert_system_reset,
+MACHINE_END
 
+MACHINE_START(NABI_2S, "NABI_2S")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
+	.map_io		= tegra_map_common_io,
+	.reserve	= tegra_kai_reserve,
+	.init_early	= tegra30_init_early,
+	.init_irq	= tegra_init_irq,
+	.handle_irq	= gic_handle_irq,
+	.timer		= &tegra_timer,
+	.init_machine	= tegra_kai_dt_init,
+	.restart	= tegra_assert_system_reset,
+MACHINE_END
 
+MACHINE_START(QC750, "QC750")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
+	.map_io		= tegra_map_common_io,
+	.reserve	= tegra_kai_reserve,
+	.init_early	= tegra30_init_early,
+	.init_irq	= tegra_init_irq,
+	.handle_irq	= gic_handle_irq,
+	.timer		= &tegra_timer,
+	.init_machine	= tegra_kai_dt_init,
+	.restart	= tegra_assert_system_reset,
+    .dt_compat	= kai_dt_board_compat,
+MACHINE_END
 
+MACHINE_START(N710, "N710")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
+	.map_io		= tegra_map_common_io,
+	.reserve	= tegra_kai_reserve,
+	.init_early	= tegra30_init_early,
+	.init_irq	= tegra_init_irq,
+	.handle_irq	= gic_handle_irq,
+	.timer		= &tegra_timer,
+	.init_machine	= tegra_kai_dt_init,
+	.restart	= tegra_assert_system_reset,
+MACHINE_END
+
+MACHINE_START(N1010, "N1010")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
+	.map_io		= tegra_map_common_io,
+	.reserve	= tegra_kai_reserve,
+	.init_early	= tegra30_init_early,
+	.init_irq	= tegra_init_irq,
+	.handle_irq	= gic_handle_irq,
+	.timer		= &tegra_timer,
+	.init_machine	= tegra_kai_dt_init,
+	.restart	= tegra_assert_system_reset,
+MACHINE_END
+
+MACHINE_START(N750, "N750")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
+	.map_io		= tegra_map_common_io,
+	.reserve	= tegra_kai_reserve,
+	.init_early	= tegra30_init_early,
+	.init_irq	= tegra_init_irq,
+	.handle_irq	= gic_handle_irq,
+	.timer		= &tegra_timer,
+	.init_machine	= tegra_kai_dt_init,
+	.restart	= tegra_assert_system_reset,
+MACHINE_END
+
+MACHINE_START(WIKIPAD, "WIKIPAD")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
+	.map_io		= tegra_map_common_io,
+	.reserve	= tegra_kai_reserve,
+	.init_early	= tegra30_init_early,
+	.init_irq	= tegra_init_irq,
+	.handle_irq	= gic_handle_irq,
+	.timer		= &tegra_timer,
+	.init_machine	= tegra_kai_dt_init,
+	.restart	= tegra_assert_system_reset,
+MACHINE_END
+
+MACHINE_START(ITQ700, "ITQ700")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
+	.map_io		= tegra_map_common_io,
+	.reserve	= tegra_kai_reserve,
+	.init_early	= tegra30_init_early,
+	.init_irq	= tegra_init_irq,
+	.handle_irq	= gic_handle_irq,
+	.timer		= &tegra_timer,
+	.init_machine	= tegra_kai_dt_init,
+	.restart	= tegra_assert_system_reset,
+MACHINE_END
+
+MACHINE_START(BIRCH, "BIRCH")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
+	.map_io		= tegra_map_common_io,
+	.reserve	= tegra_kai_reserve,
+	.init_early	= tegra30_init_early,
+	.init_irq	= tegra_init_irq,
+	.handle_irq	= gic_handle_irq,
+	.timer		= &tegra_timer,
+	.init_machine	= tegra_kai_dt_init,
+	.restart	= tegra_assert_system_reset,
+MACHINE_END
+MACHINE_START(MM3201, "MM3201")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
+	.map_io		= tegra_map_common_io,
+	.reserve	= tegra_kai_reserve,
+	.init_early	= tegra30_init_early,
+	.init_irq	= tegra_init_irq,
+	.handle_irq	= gic_handle_irq,
+	.timer		= &tegra_timer,
+	.init_machine	= tegra_kai_dt_init,
+	.restart	= tegra_assert_system_reset,
+MACHINE_END
+MACHINE_START(NS_14T004, "NS_14T004")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
+	.map_io		= tegra_map_common_io,
+	.reserve	= tegra_kai_reserve,
+	.init_early	= tegra30_init_early,
+	.init_irq	= tegra_init_irq,
+	.handle_irq	= gic_handle_irq,
+	.timer		= &tegra_timer,
+	.init_machine	= tegra_kai_dt_init,
+	.restart	= tegra_assert_system_reset,
+MACHINE_END
+MACHINE_START(ITQ701, "ITQ701")
+	.atag_offset	= 0x100,
+	.soc		= &tegra_soc_desc,
+	.map_io		= tegra_map_common_io,
+	.reserve	= tegra_kai_reserve,
+	.init_early	= tegra30_init_early,
+	.init_irq	= tegra_init_irq,
+	.handle_irq	= gic_handle_irq,
+	.timer		= &tegra_timer,
+	.init_machine	= tegra_kai_dt_init,
+	.restart	= tegra_assert_system_reset,
+MACHINE_END

@@ -298,7 +298,6 @@ obj-${CONFIG_MACH_KAI}                  += eeprom-wifi-mac.o
 obj-${CONFIG_MACH_QC750}                  += board-qc750.o
 obj-${CONFIG_MACH_QC750}                  += board-qc750-kbc.o
 obj-${CONFIG_MACH_QC750}                  += board-qc750-memory.o
-obj-${CONFIG_MACH_QC750}                  += board-qc750-misc.o
 obj-${CONFIG_MACH_QC750}                  += board-qc750-panel.o
 obj-${CONFIG_MACH_QC750}                  += board-qc750-pinmux.o
 obj-${CONFIG_MACH_QC750}                  += board-qc750-power.o

@@ -33,10 +33,8 @@
 #include <mach/iomap.h>
 #include <mach/kbc.h>
 #include <mach/gpio-tegra.h>
-#include <asm/mach-types.h>
 #include "board.h"
 #include "board-qc750.h"
-
 
 #include "gpio-names.h"
 #include "devices.h"
@@ -105,7 +103,10 @@ static struct platform_device kai_keys_max7663_device = {
 int __init kai_keys_init(void)
 {
 	pr_info("Registering gpio keys\n");
-    platform_device_register(&kai_keys_max7663_device);
+	if(machine_is_nabi2_xd()||machine_is_n1010()||machine_is_n1020()||machine_is_ns_14t004()||machine_is_itq1000()||machine_is_n1011()
+		||machine_is_n1050()||machine_is_w1011a() || machine_is_birch() || machine_is_qc750() || machine_is_wikipad()){
+		platform_device_register(&kai_keys_max7663_device);
+	}else
 	platform_device_register(&kai_keys_device);
 
 	return 0;

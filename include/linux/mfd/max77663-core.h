@@ -156,7 +156,7 @@ struct max77663_platform_data {
 
 	bool use_power_off;
 };
-
+int max77663_acok_state(void);
 #if defined(CONFIG_MFD_MAX77663)
 int max77663_read(struct device *dev, u8 addr, void *values, u32 len,
 		  bool is_rtc);
