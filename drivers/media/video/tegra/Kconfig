@@ -2,6 +2,15 @@ source "drivers/media/video/tegra/avp/Kconfig"
 source "drivers/media/video/tegra/mediaserver/Kconfig"
 source "drivers/media/video/tegra/nvavp/Kconfig"
 
+config TEGRA_CAMERA
+        bool "Enable support for tegra camera/isp hardware"
+        depends on ARCH_TEGRA
+        default y
+        help
+          Enables support for the Tegra camera interface
+
+          If unsure, say Y
+          
 config TEGRA_DTV
         bool "Enable support for tegra dtv interface"
         depends on ARCH_TEGRA
@@ -216,3 +225,21 @@ config VIDEO_MT9M114_CL2N
         depends on I2C && ARCH_TEGRA
         ---help---
           This is the Lenovo A2109 variant for the MT9M114 camera sensor
+
+config VIDEO_GC0308
+        tristate "GC0308 camera sensor support"
+        depends on I2C && ARCH_TEGRA
+        ---help---
+          This is a driver for the  GC0308 camera sensor
+ 
+config VIDEO_HM2057
+        tristate "HM2057 camera sensor support"
+        depends on I2C && ARCH_TEGRA
+        ---help---
+          This is a driver for the  HM2057 camera sensor
+        
+config VIDEO_T8EV5
+        tristate "HM2057 camera sensor support"
+        depends on I2C && ARCH_TEGRA
+        ---help---
+          This is a driver for the  HM2057 camera sensor

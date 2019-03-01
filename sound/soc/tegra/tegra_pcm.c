@@ -481,7 +481,13 @@ void tegra_pcm_free(struct snd_pcm *pcm)
 
 static int tegra_pcm_probe(struct snd_soc_platform *platform)
 {
-	platform->dapm.idle_bias_off = 1;
+if (machine_is_kai() ||
+	    machine_is_tegra_enterprise() ||
+	    machine_is_tai() ||
+		machine_is_nabi2() || machine_is_cm9000() || machine_is_nabi2_3d() ||machine_is_nabi2_xd() ||
+		machine_is_qc750() ||machine_is_nabi_2s() || machine_is_n710() || machine_is_n1010() 
+		|| machine_is_n750() || machine_is_birch()  || machine_is_wikipad() || machine_is_ns_14t004())
+		platform->dapm.idle_bias_off = 1;
 	return 0;
 }
 

@@ -31,6 +31,7 @@
 #include <linux/of_platform.h>
 #include <linux/of_gpio.h>
 #include <linux/spinlock.h>
+#include <asm/mach-types.h>
 
 struct gpio_button_data {
 	const struct gpio_keys_button *button;
@@ -405,8 +406,17 @@ static void gpio_keys_irq_timer(unsigned long _data)
 
 	spin_lock_irqsave(&bdata->lock, flags);
 	if (bdata->key_pressed) {
-		input_event(input, EV_KEY, bdata->button->code, 0);
-		input_sync(input);
+		if(machine_is_nabi2_xd()||machine_is_n1010()||machine_is_n1020()||machine_is_ns_14t004()||machine_is_itq1000()||
+			machine_is_n1011()|| machine_is_n1050()||machine_is_w1011a() || machine_is_birch() || machine_is_qc750() || machine_is_wikipad()){
+			if(bdata->irq != 750){
+				input_event(input, EV_KEY, bdata->button->code, 0);
+				input_sync(input);
+		    	}
+		}else{
+			input_event(input, EV_KEY, bdata->button->code, 0);
+			input_sync(input);
+		}
+		
 		bdata->key_pressed = false;
 	}
 	spin_unlock_irqrestore(&bdata->lock, flags);

@@ -918,4 +918,52 @@ config TOUCHSCREEN_FT5X06
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called ft5x06_ts.
+	  
+config TOUCHSCREEN_FT5X0X
+	tristate "FT5X0X I2C touchscreen driver"
+	depends on I2C
+	default n
+	help
+	  Say Y here to enable FT5X0X I2C capacitive touchscreen support
+
+	  If unsure, say N
+
+	  To compile this driver as a module, choose M here: the module will
+	  be called FT5X0X_i2c.	 
+	  
+config TOUCHSCREEN_NT11003
+	tristate "NT11003 I2C touchscreen driver"
+	depends on I2C
+	default n
+	help
+	  Say Y here to enable NT11003 I2C capacitive touchscreen support
+
+	  If unsure, say N
+
+	  To compile this driver as a module, choose M here: the module will
+	  be called NT11003_i2c.	
+	  
+config TOUCHSCREEN_NT11003_2
+	tristate "NT11003 I2C touchscreen driver"
+	depends on I2C
+	default n
+	help
+	  Say Y here to enable NT11003 I2C capacitive touchscreen support
+
+	  If unsure, say N
+
+	  To compile this driver as a module, choose M here: the module will
+	  be called NT11003_i2c.		  
+
+config TOUCHSCREEN_GOODIX_GT9XX
+	tristate "GOODIX_ I2C touchscreen driver"
+	depends on I2C
+	default n
+	help
+	  Say Y here to enable GOODIX_ I2C capacitive touchscreen support
+
+	  If unsure, say N
+
+	  To compile this driver as a module, choose M here: the module will
+	  be called GOODIX_iic.			  
 endif

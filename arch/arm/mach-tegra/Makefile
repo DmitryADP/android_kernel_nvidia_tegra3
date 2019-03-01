@@ -295,14 +295,14 @@ obj-${CONFIG_MACH_KAI}                  += board-touch-raydium_spi.o
 endif
 obj-${CONFIG_MACH_KAI}                  += eeprom-wifi-mac.o
 
-obj-${CONFIG_MACH_QC750}                  += board-qc750.o
-obj-${CONFIG_MACH_QC750}                  += board-qc750-kbc.o
-obj-${CONFIG_MACH_QC750}                  += board-qc750-memory.o
-obj-${CONFIG_MACH_QC750}                  += board-qc750-panel.o
-obj-${CONFIG_MACH_QC750}                  += board-qc750-pinmux.o
-obj-${CONFIG_MACH_QC750}                  += board-qc750-power.o
-obj-${CONFIG_MACH_QC750}                  += board-qc750-sdhci.o
-obj-${CONFIG_MACH_QC750}                  += board-qc750-sensors.o
+obj-${CONFIG_MACH_NABI2}                  += board-nabi2.o
+obj-${CONFIG_MACH_NABI2}                  += board-nabi2-kbc.o
+obj-${CONFIG_MACH_NABI2}                  += board-nabi2-memory.o
+obj-${CONFIG_MACH_NABI2}                  += board-nabi2-panel.o
+obj-${CONFIG_MACH_NABI2}                  += board-nabi2-pinmux.o
+obj-${CONFIG_MACH_NABI2}                  += board-nabi2-power.o
+obj-${CONFIG_MACH_NABI2}                  += board-nabi2-sdhci.o
+obj-${CONFIG_MACH_NABI2}                  += board-nabi2-sensors.o
 
 obj-${CONFIG_MACH_DALMORE}              += board-dalmore.o
 obj-${CONFIG_MACH_DALMORE}              += board-dalmore-memory.o

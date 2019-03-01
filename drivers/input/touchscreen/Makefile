@@ -76,3 +76,7 @@ obj-$(CONFIG_TOUCHSCREEN_SYN_RMI4_SPI)  += rmi4/
 obj-$(CONFIG_TOUCHSCREEN_MAXIM_STI)     += maxim_sti.o
 obj-$(CONFIG_TOUCHSCREEN_ELAN_TF_3K)	+= ektf3k.o
 obj-$(CONFIG_TOUCHSCREEN_FT5X06)	+= ft5x06_ts.o ft5x06_ex_fun.o
+obj-$(CONFIG_TOUCHSCREEN_FT5X0X) += ft5x0x_i2c_ts.o
+obj-$(CONFIG_TOUCHSCREEN_NT11003) += nt11003.o
+obj-$(CONFIG_TOUCHSCREEN_NT11003_2) += Novatek_TouchDriver.o
+obj-$(CONFIG_TOUCHSCREEN_GOODIX_GT9XX) += gt9xx.o gt9xx_update.o goodix_tool.o

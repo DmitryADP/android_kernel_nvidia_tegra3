@@ -38,3 +38,8 @@ obj-$(CONFIG_VIDEO_MT9M114)	+= mt9m114.o
 obj-$(CONFIG_VIDEO_OV7695)	+= ov7695.o
 obj-$(CONFIG_VIDEO_S5K5CAG)     += s5k5cag.o
 obj-$(CONFIG_VIDEO_MT9M114_CL2N)     += mt9m114-cl2n.o
+
+obj-$(CONFIG_TEGRA_CAMERA)	+= tegra_camera.o
+obj-$(CONFIG_VIDEO_GC0308)	+= gc0328.o
+obj-$(CONFIG_VIDEO_HM2057)	+= hm2057.o
+obj-$(CONFIG_VIDEO_T8EV5)	+= t8ev5.o

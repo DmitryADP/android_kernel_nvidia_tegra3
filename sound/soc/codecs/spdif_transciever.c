@@ -47,7 +47,9 @@ static int spdif_read(struct snd_soc_codec * codec, unsigned int reg){
 	return 0;
 }
 
-static struct snd_soc_codec_driver soc_codec_spdif_dit = {
+static struct snd_soc_codec_driver soc_codec_spdif_dit;
+
+static struct snd_soc_codec_driver soc_codec_spdif_dit1 = {
 	.probe = spdif_probe,
 	.dapm_widgets = spdif_dapm_widgets,
 	.num_dapm_widgets = ARRAY_SIZE(spdif_dapm_widgets),
@@ -75,9 +77,17 @@ static struct snd_soc_dai_driver dit_stub_dai = {
 
 static int spdif_dit_probe(struct platform_device *pdev)
 {
-	return snd_soc_register_codec(&pdev->dev,
-		&soc_codec_spdif_dit, &dit_stub_dai, 1);
-
+	if (machine_is_kai() ||
+	    machine_is_tegra_enterprise() ||
+	    machine_is_tai() || 
+		machine_is_nabi2() ||machine_is_nabi_2s() ||
+		machine_is_cm9000() || machine_is_nabi2_3d()|| machine_is_nabi2_xd() || machine_is_qc750() || 
+		 machine_is_n710() || machine_is_itq700() || machine_is_itq701() || machine_is_mm3201() || machine_is_n1010() || machine_is_n750() || machine_is_wikipad())
+		return snd_soc_register_codec(&pdev->dev,
+			&soc_codec_spdif_dit1, &dit_stub_dai, 1);
+	else
+		return snd_soc_register_codec(&pdev->dev,
+			 &soc_codec_spdif_dit, &dit_stub_dai, 1);
 }
 
 static int spdif_dit_remove(struct platform_device *pdev)

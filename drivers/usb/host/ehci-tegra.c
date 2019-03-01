@@ -723,9 +723,19 @@ fail_io:
 
 
 #ifdef CONFIG_PM
+
+#ifdef CONFIG_MACH_QC750
+    extern void kai_usi_3g_usb_en_value(int value);
+#endif
+
 static int tegra_ehci_resume(struct platform_device *pdev)
 {
 	struct tegra_ehci_hcd *tegra = platform_get_drvdata(pdev);
+    
+#ifdef CONFIG_MACH_QC750
+    kai_usi_3g_usb_en_value(1); //add by vin
+#endif
+    
 	struct tegra_usb_platform_data *pdata = dev_get_platdata(&pdev->dev);
 #ifdef CONFIG_MACH_GROUPER
 	if (grouper_get_project_id() == GROUPER_PROJECT_NAKASI_3G)
@@ -739,6 +749,11 @@ static int tegra_ehci_resume(struct platform_device *pdev)
 static int tegra_ehci_suspend(struct platform_device *pdev, pm_message_t state)
 {
 	struct tegra_ehci_hcd *tegra = platform_get_drvdata(pdev);
+    
+#ifdef CONFIG_MACH_QC750
+    kai_usi_3g_usb_en_value(0); //add by vin
+#endif
+    
 	struct tegra_usb_platform_data *pdata = dev_get_platdata(&pdev->dev);
 	int err;
 
