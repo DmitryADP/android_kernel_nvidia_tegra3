@@ -655,6 +655,10 @@ config SENSORS_DMARD06
 	default n
 	depends on I2C		
 	
+config  GPIO_SWITCH_OTG
+	tristate "otg and serial switch"
+	default n
+	
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"

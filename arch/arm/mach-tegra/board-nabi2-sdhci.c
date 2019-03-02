@@ -36,6 +36,8 @@
 #include "board-nabi2.h"
 #include <linux/wlan_plat.h>
 
+#include <mach/pinmux-tegra30.h>
+
 #define BCM_WLAN_RST	TEGRA_GPIO_PD4
 #define BCM_WLAN_WOW	TEGRA_GPIO_PU5
 

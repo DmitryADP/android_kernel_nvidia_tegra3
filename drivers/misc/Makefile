@@ -80,3 +80,4 @@ obj-$(CONFIG_INPUT_KIONIX_ACCEL) += kionix_accel.o
 obj-$(CONFIG_NABI_MOTION_SENSOR) += motion_sensor.o
 obj-$(CONFIG_NABI_TRULY_3D) += truly_3d.o
 obj-$(CONFIG_LIGHTSENSOR_EPL6814)	+= elan_epl6814.o
+obj-$(CONFIG_GPIO_SWITCH_OTG)		+= gpio_switch_otg.o

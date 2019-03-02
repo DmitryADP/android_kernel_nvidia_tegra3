@@ -40,7 +40,7 @@
 #include <linux/input/kionix_accel.h>
 #endif
 #if defined(CONFIG_LIS3DH_ACCELEROMETER)
-#include <linux/input/lis3dh.h>
+#include <linux/lis3dh.h>
 #endif
 #if defined(CONFIG_LIGHTSENSOR_EPL6814)
 #include <linux/input/elan_interface.h>
@@ -53,18 +53,7 @@
 #ifdef CONFIG_GPIO_SWITCH_OTG
 #include <linux/gpio_switch.h>
 #endif
-#define BMA250_IRQ_GPIO		TEGRA_GPIO_PX1
-#define DMARD06_IRQ_GPIO		TEGRA_GPIO_PX1
-#if defined(CONFIG_INPUT_KIONIX_ACCEL)
-#define KIONIX_IRQ_GPIO			TEGRA_GPIO_PW3
-#endif
-#define GC0308_POWER_RST_PIN TEGRA_GPIO_PBB0
-#define GC0308_POWER_DWN_PIN TEGRA_GPIO_PBB5
-#define HM2057_POWER_RST_PIN TEGRA_GPIO_PBB0
-#define HM2057_POWER_DWN_PIN TEGRA_GPIO_PBB5
-
-#define T8EV5_POWER_RST_PIN TEGRA_GPIO_PBB4
-#define T8EV5_POWER_DWN_PIN TEGRA_GPIO_PBB6
+#include <media/yuv_sensor_nabi2.h>
 
 static struct regulator *kai_1v8_cam1;
 static struct regulator *kai_vdd_cam1;
@@ -375,11 +364,71 @@ static int enterprise_tmp401_init(void)
 
 #endif
 
-struct yuv_sensor_platform_data {
-	int (*power_on)(struct device *);
-	int (*power_off)(struct device *);
+static int kai_camera_init(void)
+{
+	int ret;
+	if(machine_is_qc750() || machine_is_n750() || machine_is_birch()){
+		//tegra_gpio_enable(GC0308_POWER_DWN_PIN);
+		ret = gpio_request(GC0308_POWER_DWN_PIN, "gc0308_pwdn");
+		if (ret < 0) {
+			pr_err("%s: gpio_request failed for gpio %s\n",
+				__func__, "GC0308_PWDN_GPIO");
+		}
+		gpio_direction_output(GC0308_POWER_DWN_PIN, 1);//old 1
 
-};
+		//tegra_gpio_enable(GC0308_POWER_RST_PIN);
+		ret = gpio_request(GC0308_POWER_RST_PIN, "gc0308_reset");
+		if (ret < 0) {
+			pr_err("%s: gpio_request failed for gpio %s\n",
+				__func__, "GC0308_RESET_GPIO");
+		}
+		gpio_direction_output(GC0308_POWER_RST_PIN, 0);
+	}
+if(machine_is_nabi2_xd() ||machine_is_qc750() ||machine_is_n1010() 
+|| machine_is_n750() || machine_is_birch() || machine_is_ns_14t004()){
+
+	//tegra_gpio_enable(T8EV5_POWER_DWN_PIN);
+	ret = gpio_request(T8EV5_POWER_DWN_PIN, "t8ev5_pwdn");
+	if (ret < 0) {
+		pr_err("%s: gpio_request failed for gpio %s\n",
+			__func__, "T8EV5_PWDN_GPIO");
+	}
+	gpio_direction_output(T8EV5_POWER_DWN_PIN, 0);//old 1
+
+	//tegra_gpio_enable(T8EV5_POWER_RST_PIN);
+	ret = gpio_request(T8EV5_POWER_RST_PIN, "t8ev5_reset");
+	if (ret < 0) {
+		pr_err("%s: gpio_request failed for gpio %s\n",
+			__func__, "T8EV5_RESET_GPIO");
+	}
+	gpio_direction_output(T8EV5_POWER_RST_PIN, 0);
+
+}
+
+if(machine_is_nabi2_xd()||machine_is_nabi2() || machine_is_nabi2_3d() 
+||  machine_is_n710() || machine_is_itq700() || machine_is_itq701() 
+|| machine_is_mm3201() ||machine_is_nabi_2s() || machine_is_n1010() 
+|| machine_is_wikipad() || machine_is_ns_14t004()){
+	//tegra_gpio_enable(HM2057_POWER_DWN_PIN);
+	ret = gpio_request(HM2057_POWER_DWN_PIN, "hm2057_pwdn");
+	if (ret < 0) {
+		pr_err("%s: gpio_request failed for gpio %s\n",
+			__func__, "HM2057_PWDN_GPIO");
+	}
+	gpio_direction_output(HM2057_POWER_DWN_PIN, 1);//old 1
+
+	//tegra_gpio_enable(HM2057_POWER_RST_PIN);
+	ret = gpio_request(HM2057_POWER_RST_PIN, "hm2057_reset");
+	if (ret < 0) {
+		pr_err("%s: gpio_request failed for gpio %s\n",
+			__func__, "HM2057_RESET_GPIO");
+	}
+	gpio_direction_output(HM2057_POWER_RST_PIN, 0);
+}
+	mdelay(5);
+	return 0;
+}
+
 #if defined(CONFIG_VIDEO_GC0308)
 
 static int kai_gc0308_power_on(struct device *dev)
@@ -588,8 +637,6 @@ static int kai_t8ev5_power_off(struct device *dev)
 	return 0;
 }
 
-
-
 struct yuv_sensor_platform_data kai_t8ev5_data = {
 	.power_on = kai_t8ev5_power_on,
 	.power_off = kai_t8ev5_power_off,
@@ -627,69 +674,6 @@ static struct i2c_board_info ventana_i2c9_board_info[] = {
 		.platform_data = &kai_hm2057_data,
 	},
 };
-static int kai_camera_init(void)
-{
-	int ret;
-	if(machine_is_qc750() || machine_is_n750() || machine_is_birch()){
-		//tegra_gpio_enable(GC0308_POWER_DWN_PIN);
-		ret = gpio_request(GC0308_POWER_DWN_PIN, "gc0308_pwdn");
-		if (ret < 0) {
-			pr_err("%s: gpio_request failed for gpio %s\n",
-				__func__, "GC0308_PWDN_GPIO");
-		}
-		gpio_direction_output(GC0308_POWER_DWN_PIN, 1);//old 1
-
-		//tegra_gpio_enable(GC0308_POWER_RST_PIN);
-		ret = gpio_request(GC0308_POWER_RST_PIN, "gc0308_reset");
-		if (ret < 0) {
-			pr_err("%s: gpio_request failed for gpio %s\n",
-				__func__, "GC0308_RESET_GPIO");
-		}
-		gpio_direction_output(GC0308_POWER_RST_PIN, 0);
-	}
-if(machine_is_nabi2_xd() ||machine_is_qc750() ||machine_is_n1010() 
-|| machine_is_n750() || machine_is_birch() || machine_is_ns_14t004()){
-
-	//tegra_gpio_enable(T8EV5_POWER_DWN_PIN);
-	ret = gpio_request(T8EV5_POWER_DWN_PIN, "t8ev5_pwdn");
-	if (ret < 0) {
-		pr_err("%s: gpio_request failed for gpio %s\n",
-			__func__, "T8EV5_PWDN_GPIO");
-	}
-	gpio_direction_output(T8EV5_POWER_DWN_PIN, 0);//old 1
-
-	//tegra_gpio_enable(T8EV5_POWER_RST_PIN);
-	ret = gpio_request(T8EV5_POWER_RST_PIN, "t8ev5_reset");
-	if (ret < 0) {
-		pr_err("%s: gpio_request failed for gpio %s\n",
-			__func__, "T8EV5_RESET_GPIO");
-	}
-	gpio_direction_output(T8EV5_POWER_RST_PIN, 0);
-
-}
-
-if(machine_is_nabi2_xd()||machine_is_nabi2() || machine_is_nabi2_3d() 
-||  machine_is_n710() || machine_is_itq700() || machine_is_itq701() 
-|| machine_is_mm3201() ||machine_is_nabi_2s() || machine_is_n1010() 
-|| machine_is_wikipad() || machine_is_ns_14t004()){
-	//tegra_gpio_enable(HM2057_POWER_DWN_PIN);
-	ret = gpio_request(HM2057_POWER_DWN_PIN, "hm2057_pwdn");
-	if (ret < 0) {
-		pr_err("%s: gpio_request failed for gpio %s\n",
-			__func__, "HM2057_PWDN_GPIO");
-	}
-	gpio_direction_output(HM2057_POWER_DWN_PIN, 1);//old 1
-
-	//tegra_gpio_enable(HM2057_POWER_RST_PIN);
-	ret = gpio_request(HM2057_POWER_RST_PIN, "hm2057_reset");
-	if (ret < 0) {
-		pr_err("%s: gpio_request failed for gpio %s\n",
-			__func__, "HM2057_RESET_GPIO");
-	}
-	gpio_direction_output(HM2057_POWER_RST_PIN, 0);
-}
-	return 0;
-}
 
 //add by vin for usi_3g_module
 
@@ -746,7 +730,7 @@ struct interrupt_bq27x00_platform_data kai_bq27x00_data = {
 	.nIrqs = ARRAY_SIZE(ac_ok_int),
 };
 
-static const struct i2c_board_info ventana_i2c1_board_info[] = {
+static struct i2c_board_info ventana_i2c1_board_info[] = {
 	{
 		I2C_BOARD_INFO("bq27500", 0x55),
 		.platform_data = &kai_bq27x00_data,
@@ -1196,6 +1180,7 @@ static void keenhi_lightsensor_init(void)
 static void keenhi_mpuirq_init(void)
 {
 	int ret = 0;
+    int i = 0;
     
 	pr_info("*** MPU START *** keenhi_mpuirq_init...\n");
 
@@ -1232,15 +1217,15 @@ static void keenhi_mpuirq_init(void)
 	}
 	pr_info("*** MPU END *** keenhi_mpuirq_init...\n");
 
-		keenhi_inv_mpu_i2c0_board_info[0].irq = gpio_to_irq(MPU_GYRO_IRQ_GPIO);
+		keenhi_inv_mpu_i2c0_board_info[i++].irq = gpio_to_irq(MPU_GYRO_IRQ_GPIO);
 #if (MPU_GYRO_TYPE == MPU_TYPE_MPU3050)
 #if	MPU_ACCEL_IRQ_GPIO
-		keenhi_inv_mpu_i2c0_board_info[0].irq = gpio_to_irq(MPU_ACCEL_IRQ_GPIO);
+		keenhi_inv_mpu_i2c0_board_info[i++].irq = gpio_to_irq(MPU_ACCEL_IRQ_GPIO);
 #endif
 #endif
 
 #if	MPU_COMPASS_IRQ_GPIO
-		keenhi_inv_mpu_i2c0_board_info[0].irq = gpio_to_irq(MPU_COMPASS_IRQ_GPIO);
+		keenhi_inv_mpu_i2c0_board_info[i++].irq = gpio_to_irq(MPU_COMPASS_IRQ_GPIO);
 #endif
         
 	i2c_register_board_info(MPU_GYRO_BUS_NUM, keenhi_inv_mpu_i2c0_board_info,
